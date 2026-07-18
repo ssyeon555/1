@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>우리 마을 멸종위기 생물 수호대</title>
+    <!-- 파이어베이스 라이브러리 실시간 로드 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root {
             --primary: #2e7d32;
@@ -218,7 +221,6 @@
             .editor-container { grid-template-columns: 1fr; }
         }
 
-        /* 카드뉴스 공간 및 슬라이드 스타일 */
         .preview-flex-box {
             display: flex;
             flex-direction: column;
@@ -295,7 +297,6 @@
 
         .card-footer { font-size: 0.85rem; text-align: right; color: #000; margin-top: 5px; font-weight: bold; }
 
-        /* 학생용 실시간 갤러리 그리드 시스템 */
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -336,7 +337,6 @@
             margin: 5px 0;
         }
 
-        /* 대시보드 테이블 */
         .dashboard-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .dashboard-table th, .dashboard-table td { border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 0.9rem; vertical-align: top; }
         .dashboard-table th { background-color: var(--primary); color: white; }
@@ -367,7 +367,7 @@
 
 <div class="main-container">
 
-    <!-- 1단계: 도입 및 정보 입력 -->
+    <!-- 1단계: 도입 -->
     <div id="page-intro" class="page active">
         <h2>[도입] 우리 마을의 생물다양성 탐사 준비</h2>
         <div class="instruction-box">
@@ -384,7 +384,7 @@
         <button class="btn" onclick="switchPage('explore')">다음 단계: 본격 생물 탐구하기 ➔</button>
     </div>
 
-    <!-- 2단계: 생물 세부 정보 탐구 및 심화 질문 (3차시 내용 수용) -->
+    <!-- 2단계: 생물 분류 체계 명시 및 심화 구역 -->
     <div id="page-explore" class="page">
         <h2>[탐색] 1인 1생물 세부 집중 탐구</h2>
         
@@ -400,22 +400,24 @@
                 <input type="text" id="speciesNameInput" placeholder="예시: 저어새" style="margin-bottom:10px;">
                 <input type="text" id="imgUrlInput" placeholder="구글 등에서 '이미지 주소 복사'한 주소를 붙여넣으세요.">
             </div>
+            
             <div class="form-group">
-                <label>멸종위기 등급 및 분류 체계</label>
+                <label>멸종위기 등급 및 생물 분류 체계</label>
                 <select id="levelInput" style="margin-bottom:10px;">
                     <option value="">-- 등급 선택 --</option>
                     <option value="멸종위기 야생생물 I급">I급 (처해 있는 종)</option>
                     <option value="멸종위기 야생생물 II급">II급 (처할 우려가 있는 종)</option>
                 </select>
-                <input type="text" id="taxonomyInput" placeholder="예시: 동물계-척삭동물문-조강-사리새목-저어새과">
+                <input type="text" id="taxonomyInput" placeholder="예시: 동물계-척삭동물문-조강-사리새목-저어새과-저어새속-저어새">
+                <p class="hint" style="color: #c62828; font-weight: bold;">⚠️ 주의: 국립생태원 도감에 나오는 대로 [계-문-강-목-과-속-종] 순서로 연결해서 적어주세요!</p>
             </div>
+            
             <div class="form-group">
                 <label>생물의 생김새 및 서식 환경 특징</label>
                 <textarea id="appearanceInput" placeholder="이 생물의 외모 특징과 주로 살아가는 환경(갯벌, 하천 등)을 조사해 적으세요." style="height:100px;"></textarea>
             </div>
         </div>
 
-        <!-- 3차시 핵심 고민 반영 구역 -->
         <div style="background:#fff3e0; padding:20px; border-radius:10px; border-left:4px solid var(--accent);">
             <p style="margin:0 0 15px 0; font-weight:bold; color:#e65100;">[심화 원인 및 해결방안 탐구]</p>
             
@@ -435,7 +437,7 @@
         <button class="btn" onclick="saveAndGoToCreate()">탐구 완료 및 카드뉴스 자동 배치 확인 ➔</button>
     </div>
 
-    <!-- 3단계: 카드뉴스 기획안 및 다듬기 -->
+    <!-- 3단계: 카드뉴스 기획안 확인 -->
     <div id="page-create" class="page">
         <h2>[산출물] 카드뉴스 텍스트 정제 및 기획</h2>
         <div class="instruction-box">
@@ -489,7 +491,7 @@
         </div>
     </div>
 
-    <!-- 4단계: 우리 반 실시간 갤러리 (패들렛 완벽 대체) -->
+    <!-- 4단계: 우리 반 실시간 갤러리 -->
     <div id="page-gallery" class="page">
         <h2>👥 우리 반 실시간 탐구 갤러리</h2>
         <div class="instruction-box">
@@ -497,11 +499,11 @@
         </div>
         
         <div class="gallery-grid" id="studentGalleryContainer">
-            <!-- 제출 데이터 동적 삽입 -->
+            <!-- 동적 데이터 삽입 -->
         </div>
     </div>
 
-    <!-- 5단계: 선생님 전용 대시보드 관리자용 페이지 -->
+    <!-- 5단계: 관리자 대시보드 -->
     <div id="page-teacher" class="page">
         <div class="dashboard-header-tools">
             <h2>🔒 선생님 전용 실시간 학습 모니터링 보드</h2>
@@ -531,6 +533,41 @@
 </div>
 
 <script>
+    // ⚠️ 1단계에서 메모장에 복사한 본인의 firebaseConfig 내용으로 꼭 교체해주세요!
+    const firebaseConfig = {
+        apiKey: "AIzaSyDVyACAbOY6IrlhdD4YW0-m-LdNJr7qBsg",
+  authDomain: "incheon-bio.firebaseapp.com",
+  databaseURL: "https://incheon-bio-default-rtdb.firebaseio.com",
+  projectId: "incheon-bio",
+  storageBucket: "incheon-bio.firebasestorage.app",
+  messagingSenderId: "896932344929",
+  appId: "1:896932344929:web:346e75b31f2061866de620"
+};    
+    // 파이어베이스 초기화
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // 전역 배열 변수 (실시간 동기화용)
+    let globalSubmissions = [];
+
+    // 페이지 접속 시 파이어베이스 실시간 데이터 감시 작동 시작
+    database.ref('submissions').on('value', (snapshot) => {
+        globalSubmissions = [];
+        snapshot.forEach((childSnapshot) => {
+            let item = childSnapshot.val();
+            item.key = childSnapshot.key; // 파이어베이스 삭제용 키
+            globalSubmissions.push(item);
+        });
+        
+        // 현재 활성화된 화면이 갤러리나 대시보드면 리렌더링
+        if(document.getElementById('page-gallery').classList.contains('active')) {
+            renderGallery();
+        }
+        if(document.getElementById('page-teacher').classList.contains('active')) {
+            renderDashboard();
+        }
+    });
+
     function switchPage(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -544,7 +581,7 @@
         if(pageId === 'create') tabs[2].classList.add('active');
         if(pageId === 'gallery') {
             tabs[3].classList.add('active');
-            renderGallery(); // 갤러리 페이지 열릴 때 최신화
+            renderGallery();
         }
     }
 
@@ -561,7 +598,6 @@
         if(!name) { alert('1단계에서 학번과 이름을 먼저 적어주세요!'); switchPage('intro'); return; }
         if(!sName) { alert('생물 이름을 입력해주세요!'); return; }
 
-        // 미리보기 매핑
         document.getElementById('previewTitle').textContent = sName;
         document.getElementById('previewLevel').textContent = level ? `[${level.split(' ')[2]}]` : "";
         document.getElementById('previewTaxonomy').textContent = taxonomy || "분류 미입력";
@@ -574,7 +610,6 @@
             document.getElementById('cardPreviewBox1').style.backgroundImage = "none";
         }
         
-        // 텍스트 조합 분리 배치
         const text1 = `[생김새 및 서식 특징]\n${appearance}`;
         const text2 = `[멸종위기 원인]\n${reason}\n\n[우리의 실천노력]\n${effort}`;
         
@@ -592,7 +627,7 @@
         document.getElementById('previewBody2').innerText = document.getElementById('cardTextEdit2').value;
     }
 
-    // 최종 제출 시 로컬스토리지에 저장 후 실시간으로 갤러리로 연동되게 함
+    // [중요] 파이어베이스 서버로 실시간 저장 함수
     function submitFinalCard() {
         const studentInfo = document.getElementById('studentInfo').value || "익명";
         const sName = document.getElementById('speciesNameInput').value || "미입력";
@@ -602,47 +637,44 @@
         const text1 = document.getElementById('cardTextEdit1').value || "내용 없음";
         const text2 = document.getElementById('cardTextEdit2').value || "내용 없음";
 
-        let allSubmissions = JSON.parse(localStorage.getItem('classroomSubmissions') || '[]');
-        allSubmissions.push({ 
+        // 파이어베이스에 업로드 push
+        database.ref('submissions').push({
             studentInfo, 
             species: `${sName} (${level})`, 
             imgUrl, 
             taxonomy, 
             text1, 
             text2
+        }).then(() => {
+            alert('기획안이 서버 공유 갤러리에 업로드되었습니다! 친구들의 작품 화면으로 이동합니다.');
+            switchPage('gallery');
+        }).catch((error) => {
+            alert('업로드 실패: ' + error.message);
         });
-        localStorage.setItem('classroomSubmissions', JSON.stringify(allSubmissions));
-
-        alert('기획안이 공유 갤러리에 업로드되었습니다! 친구들의 작품을 구경하러 이동합니다.');
-        switchPage('gallery');
     }
 
-    // 학생용 실시간 패들렛식 갤러리 구현 함수
     function renderGallery() {
         const container = document.getElementById('studentGalleryContainer');
         container.innerHTML = '';
-        const data = JSON.parse(localStorage.getItem('classroomSubmissions') || '[]');
 
-        if(data.length === 0) {
-            container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:#999; padding: 4px0px;">아직 공유된 기획안이 없습니다. 첫 번째 주인공이 되어보세요!</div>';
+        if(globalSubmissions.length === 0) {
+            container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:#999; padding: 40px 0;">아직 공유된 기획안이 없습니다. 첫 번째 주인공이 되어보세요!</div>';
             return;
         }
 
-        data.forEach(item => {
+        globalSubmissions.forEach(item => {
             const card = document.createElement('div');
             card.className = 'gallery-card';
-            
             const thumbUrl = item.imgUrl || 'https://via.placeholder.com/300x150?text=No+Image';
             
             card.innerHTML = `
                 <img src="${thumbUrl}" class="gallery-card-thumb" onerror="this.src='https://via.placeholder.com/300x150?text=Image+Error'">
                 <div class="gallery-card-info">${item.studentInfo} 대원</div>
                 <div class="gallery-card-title">${item.species}</div>
-                <div style="font-size:0.85rem; background:#f5f5f5; padding:8px; border-radius:4px; margin-top:5px; max-height:80px; overflow:hidden; text-overflow:ellipsis;">
+                <div style="font-size:0.85rem; background:#f5f5f5; padding:8px; border-radius:4px; margin-top:5px; max-height:80px; overflow:hidden;">
                     <strong>[기획 요약]</strong><br>${item.text1.substring(0, 60)}...
                 </div>
             `;
-            // 클릭 시 팝업 형태로 자세히 볼 수 있게 alert 연계 확장 가능
             card.onclick = () => {
                 alert(`📋 [${item.studentInfo}] 기획 상세보기\n\n■ 생물분류: ${item.taxonomy}\n\n■ 1장 내용:\n${item.text1}\n\n■ 2장 내용:\n${item.text2}`);
             };
@@ -650,7 +682,6 @@
         });
     }
 
-    // 교사용 대시보드 토글 기능
     function toggleTeacherMode() {
         const checkBox = document.getElementById('teacherModeCheck');
         if(checkBox.checked) {
@@ -671,34 +702,34 @@
         }
     }
 
-    function deleteSubmission(index) {
-        if(confirm('이 학생의 기록을 정말 삭제하시겠습니까?')) {
-            let data = JSON.parse(localStorage.getItem('classroomSubmissions') || '[]');
-            data.splice(index, 1);
-            localStorage.setItem('classroomSubmissions', JSON.stringify(data));
-            renderDashboard();
+    // [중요] 파이어베이스 서버에서 개별 항목 지우기
+    function deleteSubmission(key) {
+        if(confirm('이 학생의 기록을 파이어베이스 서버에서 정말 삭제하시겠습니까?')) {
+            database.ref('submissions/' + key).remove().then(() => {
+                alert('삭제되었습니다.');
+            });
         }
     }
 
+    // [중요] 파이어베이스 서버 전체 비우기
     function clearAllSubmissions() {
-        if(confirm('⚠️ 모든 학생의 데이터가 삭제됩니다. 진행할까요?')) {
-            localStorage.removeItem('classroomSubmissions');
-            renderDashboard();
-            alert('초기화 완료.');
+        if(confirm('⚠️ 서버에 저장된 모든 학생의 데이터가 완전히 삭제됩니다. 진행할까요?')) {
+            database.ref('submissions').remove().then(() => {
+                alert('초기화 완료.');
+            });
         }
     }
 
     function renderDashboard() {
         const rowsContainer = document.getElementById('dashboardDataRows');
         rowsContainer.innerHTML = '';
-        const data = JSON.parse(localStorage.getItem('classroomSubmissions') || '[]');
         
-        if(data.length === 0) {
+        if(globalSubmissions.length === 0) {
             rowsContainer.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#999;">제출된 데이터가 없습니다.</td></tr>';
             return;
         }
 
-        data.forEach((item, index) => {
+        globalSubmissions.forEach((item) => {
             let tr = document.createElement('tr');
             const imageTag = item.imgUrl 
                 ? `<img src="${item.imgUrl}" class="dashboard-thumb" onerror="this.src='https://via.placeholder.com/60?text=Error'">` 
@@ -710,9 +741,9 @@
                 <td style="color:var(--primary); font-weight:bold;">${item.species}<br><small style="color:#666;font-weight:normal;">${item.taxonomy}</small></td>
                 <td style="font-size:0.8rem; white-space:pre-line;">${item.text1}</td>
                 <td style="font-size:0.8rem; white-space:pre-line; color:#e65100;">${item.text2}</td>
-                <td><button class="btn" style="padding:4px 8px; font-size:0.75rem; margin:0;" onclick="alert('학생 갤러리에 정상 노출 중')">공유중</button></td>
+                <td><button class="btn" style="padding:4px 8px; font-size:0.75rem; margin:0;" onclick="alert('서버 실시간 공유 중')">클라우드</button></td>
                 <td>
-                    <button class="btn btn-danger" onclick="deleteSubmission(${index})" style="padding: 5px 10px; font-size: 0.8rem;">삭제</button>
+                    <button class="btn btn-danger" onclick="deleteSubmission('${item.key}')" style="padding: 5px 10px; font-size: 0.8rem;">삭제</button>
                 </td>
             `;
             rowsContainer.appendChild(tr);
