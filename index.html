@@ -150,6 +150,21 @@
             padding-top: 20px;
             border-top: 2px dashed #ccc;
         }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            background: white;
+            font-size: 13px;
+        }
+        .admin-table th, .admin-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        .admin-table th {
+            background: #ddd;
+        }
     </style>
 </head>
 <body>
@@ -157,7 +172,7 @@
 <div class="container">
     <h1>🌱 우리 마을 생물 수호대 프로젝트</h1>
 
-    <!-- 기본 인적사항 (공통) -->
+    <!-- 기본 인적사항 -->
     <div class="grid-2" style="margin-bottom: 20px; background: var(--primary-light); padding: 15px; border-radius: 8px;">
         <div class="form-group">
             <label class="sub-title">학번</label>
@@ -184,18 +199,42 @@
             </div>
 
             <div class="form-group">
-                <div class="section-title">🚨 멸종위기 원인 및 생태계 피해 사례 (이동 완료)</div>
+                <div class="section-title">📊 분류 체계</div>
+                <input type="text" id="classification" placeholder="계-문-강-목-과-속-종 분류 체계를 적어주세요.">
+            </div>
+
+            <div class="form-group">
+                <div class="section-title">🖼️ 생물 사진 (이미지 URL)</div>
+                <input type="text" id="imageUrl" placeholder="생물 사진의 이미지 주소(URL)를 입력하세요.">
+            </div>
+
+            <div class="form-group">
+                <div class="section-title">🔗 참고할 사이트 링크</div>
+                <input type="text" id="referenceUrl" placeholder="조사할 때 참고한 사이트 주소를 입력하세요.">
+            </div>
+
+            <div class="form-group">
+                <div class="section-title">🧬 모습 (생김새)</div>
+                <textarea id="appearance" placeholder="생물의 외형적 특징과 크기, 모습 등을 서술하세요."></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="section-title">🏡 서식 환경 및 특징</div>
+                <textarea id="habitat" placeholder="생물이 주로 살아가는 환경과 생태적 특징을 서술하세요."></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="section-title">🚨 멸종위기 원인 및 생태계 피해 사례</div>
                 <div class="info-text">이 생물이 우리 동네에서 사라져가는 구체적 이유와, 사라졌을 때 생태계에 미칠 영향(피해)을 서술하세요.</div>
-                <textarea id="extinctionReason" placeholder="내용을 입력하세요. (학생들의 주도적 서술을 위해 예시가 제공되지 않습니다.)"></textarea>
+                <textarea id="extinctionReason" placeholder="내용을 입력하세요."></textarea>
             </div>
         </div>
 
-        <!-- [탭 2: 심화 탐구] (다음 탭으로 분리 완료) -->
+        <!-- [탭 2: 심화 탐구] -->
         <div id="deep-tab" class="tab-content">
             <div class="section-title">💡 생물다양성 유지를 위한 우리의 노력 방안</div>
-            <div class="info-text">이 생물을 지키기 위한 수준별 노력과 실천 방안을 각각 나누어 기재하세요. (예시 제거 완료)</div>
+            <div class="info-text">이 생물을 지키기 위한 수준별 노력과 실천 방안을 각각 나누어 기재하세요.</div>
             
-            <!-- 영역별 칸 분리 기재 -->
             <div class="form-group">
                 <label class="sub-title">🌐 국제적 차원의 노력</label>
                 <textarea id="effortInternational" placeholder="국제 협약이나 글로벌 단체 수준에서 할 수 있는 노력을 입력하세요."></textarea>
@@ -224,7 +263,7 @@
             <input type="password" id="teacherPassword" placeholder="교사용 인증 비밀번호를 입력하세요.">
             <button type="button" onclick="verifyPassword()" style="padding: 0 20px; background: #555; color: white; border: none; border-radius: 6px; cursor: pointer;">인증</button>
         </div>
-        <div id="dashboardContent" style="display: none; margin-top: 20px; background: #f0f0f0; padding: 15px; border-radius: 8px;">
+        <div id="dashboardContent" style="display: none; margin-top: 20px; background: #f0f0f0; padding: 15px; border-radius: 8px; overflow-x: auto;">
             <h4>📊 학생 제출 현황 리스트</h4>
             <div id="studentList">제출된 데이터가 아직 없거나 불러오는 중입니다.</div>
         </div>
@@ -233,51 +272,50 @@
 
 <script>
     // ==========================================
-    // [선생님의 Firebase 환경설정 값 고정]
+    // [선생님의 Firebase 환경설정 값 확인 완료]
     // ==========================================
     const firebaseConfig = {
         apiKey: "AIzaSyDVyACAbOY6IrlhdD4YW0-m-LdNJr7qBsg",
-  authDomain: "incheon-bio.firebaseapp.com",
-  databaseURL: "https://incheon-bio-default-rtdb.firebaseio.com",
-  projectId: "incheon-bio",
-  storageBucket: "incheon-bio.firebasestorage.app",
-  messagingSenderId: "896932344929",
-  appId: "1:896932344929:web:346e75b31f2061866de620"
-};    
+        authDomain: "incheon-bio.firebaseapp.com",
+        databaseURL: "https://incheon-bio-default-rtdb.firebaseio.com",
+        projectId: "incheon-bio",
+        storageBucket: "incheon-bio.firebasestorage.app",
+        messagingSenderId: "896932344929",
+        appId: "1:896932344929:web:346e75b31f2061866de620"
+    };    
+    
     // 파이어베이스 초기화
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
     const database = firebase.database();
 
-    // ==========================================
-    // 탭 전환 기능 함수
-    // ==========================================
+    // 탭 전환 함수
     function openTab(evt, tabName) {
         const tabcontents = document.getElementsByClassName("tab-content");
         for (let i = 0; i < tabcontents.length; i++) {
             tabcontents[i].classList.remove("active");
         }
-
         const tablinks = document.getElementsByClassName("tab-btn");
         for (let i = 0; i < tablinks.length; i++) {
             tablinks[i].classList.remove("active");
         }
-
         document.getElementById(tabName).classList.add("active");
         evt.currentTarget.classList.add("active");
     }
 
-    // ==========================================
-    // 학생 데이터 파이어베이스 전송 함수
-    // ==========================================
+    // 데이터 제출 함수
     function submitData() {
         const studentId = document.getElementById('studentId').value.trim();
         const studentName = document.getElementById('studentName').value.trim();
         const organismName = document.getElementById('organismName').value.trim();
+        const classification = document.getElementById('classification').value.trim();
+        const imageUrl = document.getElementById('imageUrl').value.trim();
+        const referenceUrl = document.getElementById('referenceUrl').value.trim();
+        const appearance = document.getElementById('appearance').value.trim();
+        const habitat = document.getElementById('habitat').value.trim();
         const extinctionReason = document.getElementById('extinctionReason').value.trim();
         
-        // 칸이 세 개로 분리됨에 따라 각각 데이터 수집
         const effortInternational = document.getElementById('effortInternational').value.trim();
         const effortNational = document.getElementById('effortNational').value.trim();
         const effortPersonal = document.getElementById('effortPersonal').value.trim();
@@ -287,11 +325,16 @@
             return;
         }
 
-        // Firebase Realtime Database 저장 구조 확장
+        // 전체 데이터 파이어베이스 전송
         firebase.database().ref('submissions/' + studentId).set({
             studentId: studentId,
             studentName: studentName,
             organismName: organismName,
+            classification: classification,
+            imageUrl: imageUrl,
+            referenceUrl: referenceUrl,
+            appearance: appearance,
+            habitat: habitat,
             extinctionReason: extinctionReason,
             effortInternational: effortInternational,
             effortNational: effortNational,
@@ -303,18 +346,15 @@
             } else {
                 alert('🎉 성공적으로 제출되었습니다! 수고하셨습니다.');
                 document.getElementById('investigationForm').reset();
-                // 제출 후 첫 번째 탭으로 리셋 초기화
-                document.querySelector('.tab-btn').click();
+                document.querySelector('.tab-btn').click(); // 첫 탭으로 이동
             }
         });
     }
 
-    // ==========================================
-    // 교사용 관리자 패스워드 인증 및 조회
-    // ==========================================
+    // 패스워드 인증
     function verifyPassword() {
         const password = document.getElementById('teacherPassword').value;
-        if (password === '1234') { // 교사용 기본 패스워드 설정 상태
+        if (password === '1234') {
             alert('인증되었습니다. 대시보드를 활성화합니다.');
             document.getElementById('dashboardContent').style.display = 'block';
             loadStudentData();
@@ -323,7 +363,7 @@
         }
     }
 
-    // 대시보드 데이터 로드 및 테이블 렌더링
+    // 대시보드 테이블 데이터 출력
     function loadStudentData() {
         const studentListDiv = document.getElementById('studentList');
         firebase.database().ref('submissions').on('value', (snapshot) => {
@@ -333,18 +373,26 @@
                 return;
             }
 
-            let html = '<table border="1" style="width:100%; border-collapse:collapse; text-align:left; background:white;">';
-            html += '<tr style="background:#ddd;"><th>학번</th><th>이름</th><th>생물명</th><th>멸종위기원인</th><th>국제적</th><th>국가/사회적</th><th>개인적</th></tr>';
+            let html = '<table class="admin-table">';
+            html += '<tr><th>학번</th><th>이름</th><th>생물명</th><th>분류</th><th>사진</th><th>링크</th><th>생김새</th><th>서식지</th><th>위기원인</th><th>국제적</th><th>국가/사회</th><th>개인적</th></tr>';
             
             for (let id in data) {
+                const imgTag = data[id].imageUrl ? `<a href="${data[id].imageUrl}" target="_blank">보기</a>` : '없음';
+                const refTag = data[id].referenceUrl ? `<a href="${data[id].referenceUrl}" target="_blank">이동</a>` : '없음';
+                
                 html += `<tr>
-                    <td style="padding:8px;">${data[id].studentId || ''}</td>
-                    <td style="padding:8px;">${data[id].studentName || ''}</td>
-                    <td style="padding:8px;">${data[id].organismName || ''}</td>
-                    <td style="padding:8px;">${data[id].extinctionReason || ''}</td>
-                    <td style="padding:8px;">${data[id].effortInternational || ''}</td>
-                    <td style="padding:8px;">${data[id].effortNational || ''}</td>
-                    <td style="padding:8px;">${data[id].effortPersonal || ''}</td>
+                    <td>${data[id].studentId || ''}</td>
+                    <td>${data[id].studentName || ''}</td>
+                    <td>${data[id].organismName || ''}</td>
+                    <td>${data[id].classification || ''}</td>
+                    <td>${imgTag}</td>
+                    <td>${refTag}</td>
+                    <td>${data[id].appearance || ''}</td>
+                    <td>${data[id].habitat || ''}</td>
+                    <td>${data[id].extinctionReason || ''}</td>
+                    <td>${data[id].effortInternational || ''}</td>
+                    <td>${data[id].effortNational || ''}</td>
+                    <td>${data[id].effortPersonal || ''}</td>
                 </tr>`;
             }
             html += '</table>';
