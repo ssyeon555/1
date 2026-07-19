@@ -163,7 +163,7 @@
             background-color: #1b5e20;
         }
 
-        /* 👥 패들렛 스타일 실시간 공유 게시판 */
+        /* 👥 실시간 공유 게시판 스타일 */
         .board-section {
             margin-top: 50px;
             padding-top: 30px;
@@ -356,9 +356,9 @@
         </div>
     </form>
 
-    <!-- [👥 패들렛형 우리 반 실시간 공유 게시판] -->
+    <!-- [👥 우리 반 실시간 공유 게시판] -->
     <div class="board-section">
-        <div class="board-title">👥 우리 반 실시간 공유 게시판 (패들렛 뷰)</div>
+        <div class="board-title">👥 우리 반 실시간 공유 게시판</div>
         <p class="info-text" style="margin-bottom: 20px;">친구들이 조사한 생물 자료를 실시간으로 함께 구경하며 탐구해 보세요!</p>
         <div id="publicBoard" class="grid-board">
             <p style="color: #aaa; text-align: center; grid-column: 1/-1;">데이터를 불러오는 중이거나 등록된 글이 없습니다.</p>
@@ -395,7 +395,6 @@
     }
     const database = firebase.database();
 
-    // 페이지 로드 시 실시간 게시판 자동 연동
     document.addEventListener("DOMContentLoaded", () => {
         loadPublicBoard();
     });
@@ -458,7 +457,6 @@
         });
     }
 
-    // 👥 누구나 볼 수 있는 실시간 공유 게시판 (패들렛 스타일)
     function loadPublicBoard() {
         const publicBoardDiv = document.getElementById('publicBoard');
         firebase.database().ref('submissions').on('value', (snapshot) => {
