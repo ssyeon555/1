@@ -210,7 +210,22 @@
             font-size: 18px;
             font-weight: bold;
             color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 5px;
         }
+
+        /* 🚨 등급 표시용 배지 스타일 */
+        .badge {
+            font-size: 11px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge.level1 { background-color: #d50000; }
+        .badge.level2 { background-color: #ff6d00; }
 
         .card-img {
             width: 100%;
@@ -238,11 +253,61 @@
             display: block;
         }
 
-        /* 교사용 관리자 영역 스타일 */
+        /* 교사용 관리자 영역 및 온오프 토글 디자인 */
         .admin-section {
             margin-top: 60px;
-            padding-top: 20px;
+            padding-top: 25px;
             border-top: 2px dashed #ccc;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .toggle-box {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background-color: #ccc;
+            border-radius: 15px;
+            transition: 0.3s;
+        }
+
+        .toggle-ball {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-box.active {
+            background-color: var(--primary);
+        }
+        .toggle-box.active .toggle-ball {
+            left: 27px;
+        }
+
+        .admin-auth-area {
+            display: none;
+            margin-bottom: 20px;
         }
 
         .admin-table {
@@ -260,7 +325,6 @@
             background: #ddd;
         }
         
-        /* 🗑️ 삭제 버튼 스타일 */
         .delete-btn {
             background-color: var(--accent);
             color: white;
@@ -316,6 +380,15 @@
             <div class="form-group">
                 <div class="section-title">🖼️ 생물 사진 (이미지 URL)</div>
                 <input type="text" id="imageUrl" placeholder="생물 사진의 이미지 주소(URL)를 입력하세요.">
+            </div>
+
+            <!-- 🚨 멸종위기 등급 고르기 (해당없음 제거 완료) -->
+            <div class="form-group">
+                <div class="section-title">🚨 멸종위기 등급 고르기</div>
+                <select id="endangeredLevel">
+                    <option value="멸종위기 야생생물 I급">멸종위기 야생생물 I급</option>
+                    <option value="멸종위기 야생생물 II급">멸종위기 야생생물 II급</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -380,16 +453,27 @@
         </div>
     </div>
 
-    <!-- [🔒 교사용 대시보드 영역] -->
+    <!-- [🔒 교사용 관리 영역 (스위치 전환형)] -->
     <div class="admin-section">
-        <h3>🔒 교사용 데이터 확인 (대시보드)</h3>
-        <div class="form-group" style="display: flex; gap: 10px;">
-            <input type="password" id="teacherPassword" placeholder="교사용 인증 비밀번호를 입력하세요.">
-            <button type="button" onclick="verifyPassword()" style="padding: 0 20px; background: #555; color: white; border: none; border-radius: 6px; cursor: pointer;">인증</button>
+        <div class="admin-header">
+            <h3 style="margin: 0;">🔒 교사용 데이터 확인 (대시보드)</h3>
+            <div class="toggle-container" onclick="toggleAdminMode()">
+                <span id="toggleText">교사용 모드 끄기</span>
+                <div class="toggle-box" id="toggleBox">
+                    <div class="toggle-ball"></div>
+                </div>
+            </div>
         </div>
-        <div id="dashboardContent" style="display: none; margin-top: 20px; background: #f0f0f0; padding: 15px; border-radius: 8px; overflow-x: auto;">
-            <h4>📊 학생 제출 현황 리스트</h4>
-            <div id="studentList">제출된 데이터가 아직 없거나 불러오는 중입니다.</div>
+
+        <div id="adminAuthArea" class="admin-auth-area">
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <input type="password" id="teacherPassword" placeholder="교사용 인증 비밀번호를 입력하세요.">
+                <button type="button" onclick="verifyPassword()" style="padding: 0 20px; background: #555; color: white; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap;">인증</button>
+            </div>
+            <div id="dashboardContent" style="display: none; margin-top: 20px; background: #f0f0f0; padding: 15px; border-radius: 8px; overflow-x: auto;">
+                <h4>📊 학생 제출 현황 리스트</h4>
+                <div id="studentList">제출된 데이터가 아직 없거나 불러오는 중입니다.</div>
+            </div>
         </div>
     </div>
 </div>
@@ -409,6 +493,8 @@
         firebase.initializeApp(firebaseConfig);
     }
     const database = firebase.database();
+
+    let isAdminModeOn = false;
 
     document.addEventListener("DOMContentLoaded", () => {
         loadPublicBoard();
@@ -431,6 +517,7 @@
         const studentId = document.getElementById('studentId').value.trim();
         const studentName = document.getElementById('studentName').value.trim();
         const organismName = document.getElementById('organismName').value.trim();
+        const endangeredLevel = document.getElementById('endangeredLevel').value;
         const classification = document.getElementById('classification').value.trim();
         const imageUrl = document.getElementById('imageUrl').value.trim();
         const referenceUrl = document.getElementById('referenceUrl').value.trim();
@@ -451,6 +538,7 @@
             studentId: studentId,
             studentName: studentName,
             organismName: organismName,
+            endangeredLevel: endangeredLevel,
             classification: classification,
             imageUrl: imageUrl,
             referenceUrl: referenceUrl,
@@ -487,12 +575,22 @@
                 const displayImg = item.imageUrl ? `<img src="${item.imageUrl}" class="card-img" alt="${item.organismName}" onerror="this.src='https://placehold.co/300x160?text=No+Image'">` : `<div style="height:160px; background:#f0f0f0; display:flex; align-items:center; justify-content:center; border-radius:6px; color:#aaa; font-size:13px;">등록된 이미지 없음</div>`;
                 const displayLink = item.referenceUrl ? `<br><a href="${data[id].referenceUrl}" target="_blank" style="color:var(--accent); font-weight:bold; text-decoration:none;">🔗 참고 사이트 방문</a>` : '';
 
+                let badgeClass = 'level1';
+                let shortLevel = 'I급';
+                if (item.endangeredLevel === '멸종위기 야생생물 II급') {
+                    badgeClass = 'level2';
+                    shortLevel = 'II급';
+                }
+
                 cardHtml += `
                     <div class="bio-card">
                         <div class="card-header">
                             <span>👤 ${item.studentId || ''} ${item.studentName || ''}</span>
                         </div>
-                        <div class="card-title">🌿 ${item.organismName || '이름 미기재'}</div>
+                        <div class="card-title">
+                            <span>🌿 ${item.organismName || '이름 미기재'}</span>
+                            <span class="badge ${badgeClass}">${shortLevel}</span>
+                        </div>
                         ${displayImg}
                         <div class="card-body">
                             <span class="card-label">[분류 체계]</span> ${item.classification || '미기재'} ${displayLink}
@@ -506,6 +604,26 @@
             }
             publicBoardDiv.innerHTML = cardHtml;
         });
+    }
+
+    function toggleAdminMode() {
+        const toggleBox = document.getElementById('toggleBox');
+        const toggleText = document.getElementById('toggleText');
+        const adminAuthArea = document.getElementById('adminAuthArea');
+
+        isAdminModeOn = !isAdminModeOn;
+
+        if (isAdminModeOn) {
+            toggleBox.classList.add('active');
+            toggleText.innerText = '교사용 모드 켜짐';
+            adminAuthArea.style.display = 'block';
+        } else {
+            toggleBox.classList.remove('active');
+            toggleText.innerText = '교사용 모드 끄기';
+            adminAuthArea.style.display = 'none';
+            document.getElementById('teacherPassword').value = '';
+            document.getElementById('dashboardContent').style.display = 'none';
+        }
     }
 
     function verifyPassword() {
@@ -529,17 +647,17 @@
             }
 
             let html = '<table class="admin-table">';
-            html += '<tr><th>학번</th><th>이름</th><th>생물명</th><th>사진</th><th>분류</th><th>링크</th><th>생김새</th><th>서식지</th><th>위기원인</th><th>국제적</th><th>국가/사회</th><th>개인적</th><th>관리</th></tr>';
+            html += '<tr><th>학번</th><th>이름</th><th>생물명</th><th>위기등급</th><th>사진</th><th>분류</th><th>링크</th><th>생김새</th><th>서식지</th><th>위기원인</th><th>국제적</th><th>국가/사회</th><th>개인적</th><th>관리</th></tr>';
             
             for (let id in data) {
                 const imgTag = data[id].imageUrl ? `<a href="${data[id].imageUrl}" target="_blank">보기</a>` : '없음';
                 const refTag = data[id].referenceUrl ? `<a href="${data[id].referenceUrl}" target="_blank">이동</a>` : '없음';
                 
-                // 각 학생 행에 고유한 삭제 버튼 바인딩 (데이터베이스의 키값인 학번 전송)
                 html += `<tr>
                     <td>${data[id].studentId || ''}</td>
                     <td>${data[id].studentName || ''}</td>
                     <td>${data[id].organismName || ''}</td>
+                    <td><strong style="color:#c62828;">${data[id].endangeredLevel || 'I급'}</strong></td>
                     <td>${imgTag}</td>
                     <td>${data[id].classification || ''}</td>
                     <td>${refTag}</td>
@@ -559,7 +677,6 @@
         });
     }
 
-    // 🗑️ 교사용 데이터 삭제 함수
     function deleteData(studentId) {
         if (confirm(`⚠️ 학번 [ ${studentId} ] 학생의 조사 데이터를 정말로 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없으며 실시간 게시판에서도 사라집니다.`)) {
             firebase.database().ref('submissions/' + studentId).remove()
