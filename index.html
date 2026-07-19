@@ -25,7 +25,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             background: white;
             padding: 30px;
@@ -98,6 +98,25 @@
             margin-bottom: 10px;
         }
 
+        .link-box {
+            background-color: #fff3e0;
+            border: 1px solid #ffe0b2;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .link-box a {
+            color: #e65100;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .link-box a:hover {
+            text-decoration: underline;
+        }
+
         input[type="text"], textarea, select {
             width: 100%;
             padding: 12px;
@@ -144,9 +163,84 @@
             background-color: #1b5e20;
         }
 
+        /* 👥 패들렛 스타일 실시간 공유 게시판 */
+        .board-section {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 3px double var(--primary);
+        }
+
+        .board-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grid-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .bio-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .card-header {
+            font-size: 14px;
+            color: #777;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #f0f0f0;
+        }
+
+        .card-body {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #444;
+            max-height: 150px;
+            overflow-y: auto;
+            background: #fafafa;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .card-label {
+            font-weight: bold;
+            color: #1b5e20;
+            margin-top: 5px;
+            display: block;
+        }
+
         /* 교사용 관리자 영역 스타일 */
         .admin-section {
-            margin-top: 50px;
+            margin-top: 60px;
             padding-top: 20px;
             border-top: 2px dashed #ccc;
         }
@@ -156,7 +250,7 @@
             border-collapse: collapse;
             text-align: left;
             background: white;
-            font-size: 13px;
+            font-size: 12px;
         }
         .admin-table th, .admin-table td {
             padding: 8px;
@@ -193,14 +287,15 @@
     <form id="investigationForm">
         <!-- [탭 1: 기본 조사] -->
         <div id="basic-tab" class="tab-content active">
-            <div class="form-group">
-                <div class="section-title">🔍 조사할 생물 이름</div>
-                <input type="text" id="organismName" placeholder="조사 대상 생물의 이름을 적어주세요.">
+            
+            <div class="link-box">
+                💡 <strong>[추천 조사 사이트]</strong> 국립생태원 멸종위기 야생생물 포털에서 정보를 검색해 보세요! 
+                👉 <a href="https://www.nie.re.kr/nie/pgm/edSearch/main.do?menuNo=200133" target="_blank">사이트 바로가기 (클릭)</a>
             </div>
 
             <div class="form-group">
-                <div class="section-title">📊 분류 체계</div>
-                <input type="text" id="classification" placeholder="계-문-강-목-과-속-종 분류 체계를 적어주세요.">
+                <div class="section-title">🔍 조사할 생물 이름</div>
+                <input type="text" id="organismName" placeholder="조사 대상 생물의 이름을 적어주세요.">
             </div>
 
             <div class="form-group">
@@ -209,8 +304,13 @@
             </div>
 
             <div class="form-group">
+                <div class="section-title">📊 분류 체계</div>
+                <input type="text" id="classification" placeholder="계-문-강-목-과-속-종 분류 체계를 적어주세요.">
+            </div>
+
+            <div class="form-group">
                 <div class="section-title">🔗 참고할 사이트 링크</div>
-                <input type="text" id="referenceUrl" placeholder="조사할 때 참고한 사이트 주소를 입력하세요.">
+                <input type="text" id="referenceUrl" placeholder="위의 추천 사이트 외에 추가로 참고한 사이트 주소가 있다면 입력하세요.">
             </div>
 
             <div class="form-group">
@@ -256,7 +356,16 @@
         </div>
     </form>
 
-    <!-- [교사용 대시보드 영역] -->
+    <!-- [👥 패들렛형 우리 반 실시간 공유 게시판] -->
+    <div class="board-section">
+        <div class="board-title">👥 우리 반 실시간 공유 게시판 (패들렛 뷰)</div>
+        <p class="info-text" style="margin-bottom: 20px;">친구들이 조사한 생물 자료를 실시간으로 함께 구경하며 탐구해 보세요!</p>
+        <div id="publicBoard" class="grid-board">
+            <p style="color: #aaa; text-align: center; grid-column: 1/-1;">데이터를 불러오는 중이거나 등록된 글이 없습니다.</p>
+        </div>
+    </div>
+
+    <!-- [🔒 교사용 대시보드 영역] -->
     <div class="admin-section">
         <h3>🔒 교사용 데이터 확인 (대시보드)</h3>
         <div class="form-group" style="display: flex; gap: 10px;">
@@ -271,9 +380,6 @@
 </div>
 
 <script>
-    // ==========================================
-    // [선생님의 Firebase 환경설정 값 확인 완료]
-    // ==========================================
     const firebaseConfig = {
         apiKey: "AIzaSyDVyACAbOY6IrlhdD4YW0-m-LdNJr7qBsg",
         authDomain: "incheon-bio.firebaseapp.com",
@@ -284,13 +390,16 @@
         appId: "1:896932344929:web:346e75b31f2061866de620"
     };    
     
-    // 파이어베이스 초기화
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
     const database = firebase.database();
 
-    // 탭 전환 함수
+    // 페이지 로드 시 실시간 게시판 자동 연동
+    document.addEventListener("DOMContentLoaded", () => {
+        loadPublicBoard();
+    });
+
     function openTab(evt, tabName) {
         const tabcontents = document.getElementsByClassName("tab-content");
         for (let i = 0; i < tabcontents.length; i++) {
@@ -304,7 +413,6 @@
         evt.currentTarget.classList.add("active");
     }
 
-    // 데이터 제출 함수
     function submitData() {
         const studentId = document.getElementById('studentId').value.trim();
         const studentName = document.getElementById('studentName').value.trim();
@@ -325,7 +433,6 @@
             return;
         }
 
-        // 전체 데이터 파이어베이스 전송
         firebase.database().ref('submissions/' + studentId).set({
             studentId: studentId,
             studentName: studentName,
@@ -344,14 +451,50 @@
             if (error) {
                 alert('데이터 저장 중 에러가 발생했습니다: ' + error.message);
             } else {
-                alert('🎉 성공적으로 제출되었습니다! 수고하셨습니다.');
+                alert('🎉 성공적으로 제출되었습니다! 아래 실시간 공유 게시판에서 확인해 보세요.');
                 document.getElementById('investigationForm').reset();
-                document.querySelector('.tab-btn').click(); // 첫 탭으로 이동
+                document.querySelector('.tab-btn').click();
             }
         });
     }
 
-    // 패스워드 인증
+    // 👥 누구나 볼 수 있는 실시간 공유 게시판 (패들렛 스타일)
+    function loadPublicBoard() {
+        const publicBoardDiv = document.getElementById('publicBoard');
+        firebase.database().ref('submissions').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (!data) {
+                publicBoardDiv.innerHTML = '<p style="color: #aaa; text-align: center; grid-column: 1/-1;">등록된 글이 없습니다. 첫 번째 주인공이 되어 보세요!</p>';
+                return;
+            }
+
+            let cardHtml = '';
+            for (let id in data) {
+                const item = data[id];
+                const displayImg = item.imageUrl ? `<img src="${item.imageUrl}" class="card-img" alt="${item.organismName}" onerror="this.src='https://placehold.co/300x160?text=No+Image'">` : `<div style="height:160px; background:#f0f0f0; display:flex; align-items:center; justify-content:center; border-radius:6px; color:#aaa; font-size:13px;">등록된 이미지 없음</div>`;
+                const displayLink = item.referenceUrl ? `<br><a href="${item.referenceUrl}" target="_blank" style="color:var(--accent); font-weight:bold; text-decoration:none;">🔗 참고 사이트 방문</a>` : '';
+
+                cardHtml += `
+                    <div class="bio-card">
+                        <div class="card-header">
+                            <span>👤 ${item.studentId || ''} ${item.studentName || ''}</span>
+                        </div>
+                        <div class="card-title">🌿 ${item.organismName || '이름 미기재'}</div>
+                        ${displayImg}
+                        <div class="card-body">
+                            <span class="card-label">[분류 체계]</span> ${item.classification || '미기재'} ${displayLink}
+                            <span class="card-label">[생김새 모습]</span> ${item.appearance || '미기재'}
+                            <span class="card-label">[서식 환경]</span> ${item.habitat || '미기재'}
+                            <span class="card-label">[멸종위기 원인]</span> ${item.extinctionReason || '미기재'}
+                            <span class="card-label">[우리의 노력 방안 (개인)]</span> ${item.effortPersonal || '미기재'}
+                        </div>
+                    </div>
+                `;
+            }
+            publicBoardDiv.innerHTML = cardHtml;
+        });
+    }
+
     function verifyPassword() {
         const password = document.getElementById('teacherPassword').value;
         if (password === '1234') {
@@ -363,7 +506,6 @@
         }
     }
 
-    // 대시보드 테이블 데이터 출력
     function loadStudentData() {
         const studentListDiv = document.getElementById('studentList');
         firebase.database().ref('submissions').on('value', (snapshot) => {
@@ -374,7 +516,7 @@
             }
 
             let html = '<table class="admin-table">';
-            html += '<tr><th>학번</th><th>이름</th><th>생물명</th><th>분류</th><th>사진</th><th>링크</th><th>생김새</th><th>서식지</th><th>위기원인</th><th>국제적</th><th>국가/사회</th><th>개인적</th></tr>';
+            html += '<tr><th>학번</th><th>이름</th><th>생물명</th><th>사진</th><th>분류</th><th>링크</th><th>생김새</th><th>서식지</th><th>위기원인</th><th>국제적</th><th>국가/사회</th><th>개인적</th></tr>';
             
             for (let id in data) {
                 const imgTag = data[id].imageUrl ? `<a href="${data[id].imageUrl}" target="_blank">보기</a>` : '없음';
@@ -384,8 +526,8 @@
                     <td>${data[id].studentId || ''}</td>
                     <td>${data[id].studentName || ''}</td>
                     <td>${data[id].organismName || ''}</td>
-                    <td>${data[id].classification || ''}</td>
                     <td>${imgTag}</td>
+                    <td>${data[id].classification || ''}</td>
                     <td>${refTag}</td>
                     <td>${data[id].appearance || ''}</td>
                     <td>${data[id].habitat || ''}</td>
