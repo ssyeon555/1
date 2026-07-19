@@ -259,6 +259,21 @@
         .admin-table th {
             background: #ddd;
         }
+        
+        /* 🗑️ 삭제 버튼 스타일 */
+        .delete-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .delete-btn:hover {
+            background-color: #b71c1c;
+        }
     </style>
 </head>
 <body>
@@ -470,7 +485,7 @@
             for (let id in data) {
                 const item = data[id];
                 const displayImg = item.imageUrl ? `<img src="${item.imageUrl}" class="card-img" alt="${item.organismName}" onerror="this.src='https://placehold.co/300x160?text=No+Image'">` : `<div style="height:160px; background:#f0f0f0; display:flex; align-items:center; justify-content:center; border-radius:6px; color:#aaa; font-size:13px;">등록된 이미지 없음</div>`;
-                const displayLink = item.referenceUrl ? `<br><a href="${item.referenceUrl}" target="_blank" style="color:var(--accent); font-weight:bold; text-decoration:none;">🔗 참고 사이트 방문</a>` : '';
+                const displayLink = item.referenceUrl ? `<br><a href="${data[id].referenceUrl}" target="_blank" style="color:var(--accent); font-weight:bold; text-decoration:none;">🔗 참고 사이트 방문</a>` : '';
 
                 cardHtml += `
                     <div class="bio-card">
@@ -514,12 +529,13 @@
             }
 
             let html = '<table class="admin-table">';
-            html += '<tr><th>학번</th><th>이름</th><th>생물명</th><th>사진</th><th>분류</th><th>링크</th><th>생김새</th><th>서식지</th><th>위기원인</th><th>국제적</th><th>국가/사회</th><th>개인적</th></tr>';
+            html += '<tr><th>학번</th><th>이름</th><th>생물명</th><th>사진</th><th>분류</th><th>링크</th><th>생김새</th><th>서식지</th><th>위기원인</th><th>국제적</th><th>국가/사회</th><th>개인적</th><th>관리</th></tr>';
             
             for (let id in data) {
                 const imgTag = data[id].imageUrl ? `<a href="${data[id].imageUrl}" target="_blank">보기</a>` : '없음';
                 const refTag = data[id].referenceUrl ? `<a href="${data[id].referenceUrl}" target="_blank">이동</a>` : '없음';
                 
+                // 각 학생 행에 고유한 삭제 버튼 바인딩 (데이터베이스의 키값인 학번 전송)
                 html += `<tr>
                     <td>${data[id].studentId || ''}</td>
                     <td>${data[id].studentName || ''}</td>
@@ -533,11 +549,27 @@
                     <td>${data[id].effortInternational || ''}</td>
                     <td>${data[id].effortNational || ''}</td>
                     <td>${data[id].effortPersonal || ''}</td>
+                    <td>
+                        <button class="delete-btn" onclick="deleteData('${data[id].studentId}')">삭제</button>
+                    </td>
                 </tr>`;
             }
             html += '</table>';
             studentListDiv.innerHTML = html;
         });
+    }
+
+    // 🗑️ 교사용 데이터 삭제 함수
+    function deleteData(studentId) {
+        if (confirm(`⚠️ 학번 [ ${studentId} ] 학생의 조사 데이터를 정말로 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없으며 실시간 게시판에서도 사라집니다.`)) {
+            firebase.database().ref('submissions/' + studentId).remove()
+            .then(() => {
+                alert('데이터가 안전하게 삭제되었습니다.');
+            })
+            .catch((error) => {
+                alert('삭제 중 오류가 발생했습니다: ' + error.message);
+            });
+        }
     }
 </script>
 
